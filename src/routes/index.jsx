@@ -7,6 +7,7 @@ import Home from "../pages/Home";
 import MinhaLista from "../pages/MinhaLista";
 import Recomendacao from "../pages/Recomendacao";
 import MovieDetails from "../pages/MovieDetails";
+import AuthSuccess from "../pages/AuthSucess";
 
 function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ function AppRoutes() {
         <Route path="/" element={<ProtectedRoute><Home/></ProtectedRoute>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/cadastro" element={<Cadastro/>} />
+        <Route path="/auth/success" element={<AuthSuccess/>}/>
         <Route path="/perfil" element={<ProtectedRoute><Perfil/></ProtectedRoute>} />
         <Route path="/minha-lista" element={<ProtectedRoute><MinhaLista/></ProtectedRoute>} />
         <Route path="/recomendacao" element={<ProtectedRoute><Recomendacao/></ProtectedRoute>} />

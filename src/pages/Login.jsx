@@ -12,8 +12,7 @@ function Login() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError(null);
 
     try {
@@ -24,6 +23,16 @@ function Login() {
       setError("Email ou senha inválidos", error);
     }
   };
+
+  const handleSubmitGoogle =  () => {
+    setError(null);
+    try {
+      window.location.href = `${api}/auth/google`;
+    } catch(error) {
+      console.error("Erro ao fazer login com Google", error);
+      setError("Erro ao fazer login com Google")
+    }
+  }
 
   return (
     <section
@@ -85,7 +94,7 @@ function Login() {
 
             <Button
               label="Entrar com Google"
-              onClick={() => {}}
+              onClick={handleSubmitGoogle}
               variant="secondary"
               type="button"
             />

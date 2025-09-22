@@ -1,13 +1,31 @@
+import { useState } from "react"
+import LoadingSpinnerButton from "../../LoadingSpinnerButton/LoadingSpinnerButton";
 
-const Button = ({label, onClick, variant, type = "button", disabled = false}) => {
+const Button = ({ label, onClick, variant, type = "button", disabled = false }) => {
+    const [loading, setLoading] = useState(false)
+
+    const handleClick = async () => {
+        setLoading(true);
+        try {
+            await onClick();
+        } catch (error) {
+            console.error('Erro ao executar a ação', error);
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <button
             type={type}
-            onClick={onClick}
+            onClick={handleClick}
             disabled={disabled}
             className={`${styleBase[variant]}`}
         >
-            {label}
+            {loading ? (
+                <LoadingSpinnerButton />)
+                :
+                (label)
+            }
         </button>
     )
 }

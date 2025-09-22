@@ -70,8 +70,7 @@ function Home() {
     staleTime: 1000 * 60 * 2,
   });
 
-  const handleSearch = (event) => {
-    event.preventDefault();
+  const handleSearch = () => {
     setSearchTerm(searchValue.trim());
   };
 
@@ -97,7 +96,7 @@ function Home() {
               onChange={e => setSearchValue(e.target.value)}
             />
             <span className="flex items-center md:w-1/5">
-              <Button label="Buscar" variant="primary" type="submit" />
+              <Button label="Buscar" variant="primary" onClick={handleSearch} type="button" />
             </span>
           </form>
         {/* Resultados da pesquisa */}

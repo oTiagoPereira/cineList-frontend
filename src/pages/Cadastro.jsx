@@ -14,8 +14,7 @@ function Cadastro() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError(null);
 
     try {
@@ -31,6 +30,16 @@ function Cadastro() {
       setError("Erro ao cadastrar usuário", error);
     }
   };
+
+  const handleSubmitGoogle =  () => {
+    setError(null);
+    try {
+      window.location.href = `${api}/auth/google`;
+    } catch(error) {
+      console.error("Erro ao fazer cadastro com Google", error);
+      setError("Erro ao fazer cadastro com Google")
+    }
+  }
 
   return (
     <section
@@ -121,7 +130,7 @@ function Cadastro() {
 
             <Button
               label="Entrar com Google"
-              onClick={() => {}}
+              onClick={handleSubmitGoogle}
               variant="secondary"
               type="button"
             />
