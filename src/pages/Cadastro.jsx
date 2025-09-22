@@ -4,9 +4,7 @@ import axios from "axios";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
 
-const api = axios.create({
-  baseURL: "http://localhost:5000/api/auth",
-});
+const api = import.meta.env.VITE_API_BACKEND;
 
 function Cadastro() {
   const [name, setName] = useState("");
@@ -25,9 +23,11 @@ function Cadastro() {
         setError("As senhas devem ser iguais");
         return;
       }
-      await api.post("/register", { name, email, password });
+      await axios.post(`${api}/auth/register`, { name, email, password });
+      alert(`Usuário ${name} cadastrado com sucesso!`)
       navigate("/login");
     } catch (error) {
+      console.log(error);
       setError("Erro ao cadastrar usuário", error);
     }
   };

@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
+import axios from "axios";
 
-const api = axios.create({
-  baseURL: "http://localhost:5000/api/auth",
-});
+const api = import.meta.env.VITE_API_BACKEND;
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -19,8 +17,8 @@ function Login() {
     setError(null);
 
     try {
-      const response = await api.post("/login", { email, password });
-      localStorage.setItem("token", response.data.token); // Salva o token real
+      const response = await axios.post(`${api}/auth/login`, { email, password });
+      localStorage.setItem("token", response.data.token);
       navigate("/");
     } catch (error) {
       setError("Email ou senha inválidos", error);
