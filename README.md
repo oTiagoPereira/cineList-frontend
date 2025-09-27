@@ -1,12 +1,117 @@
-# React + Vite
+# CineList Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Descrição do Projeto
 
-Currently, two official plugins are available:
+O CineList Frontend é a interface de usuário para o aplicativo CineList, que permite aos usuários explorar filmes, salvar favoritos, visualizar recomendações e gerenciar suas listas de filmes. Ele se comunica com o backend para obter dados de filmes e gerenciar autenticação.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Estrutura do Projeto
 
-## Expanding the ESLint configuration
+A estrutura do projeto é organizada da seguinte forma:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+frontend/
+├── public/                # Arquivos estáticos (ex.: logo, favicon)
+├── src/                   # Código-fonte principal
+│   ├── components/        # Componentes reutilizáveis
+│   ├── hooks/             # Hooks personalizados
+│   ├── layout/            # Layouts principais
+│   ├── pages/             # Páginas da aplicação
+│   ├── routes/            # Configuração de rotas
+│   ├── services/          # Serviços para chamadas à API
+│   ├── style/             # Estilos globais
+│   └── utils/             # Funções utilitárias
+├── package.json           # Dependências e scripts do projeto
+├── vite.config.js         # Configuração do Vite
+└── README.md              # Documentação do projeto
+```
+
+## Configuração e Execução
+
+### Pré-requisitos
+
+- Node.js (v16 ou superior)
+- npm ou yarn
+
+### Passos para rodar o projeto
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/oTiagoPereira/cineList-frontend.git
+   ```
+2. Navegue até a pasta do frontend:
+   ```bash
+   cd frontend
+   ```
+3. Instale as dependências:
+   ```bash
+   npm install
+   ```
+4. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+5. Acesse a aplicação no navegador em `http://localhost:5173`.
+
+### Build para Produção
+
+Para gerar os arquivos otimizados para produção:
+
+```bash
+npm run build
+```
+
+Os arquivos gerados estarão na pasta `dist/`.
+
+## Componentes e Páginas
+
+### Componentes
+
+- **Button**: Botão reutilizável.
+- **Header**: Cabeçalho da aplicação.
+- **Footer**: Rodapé da aplicação.
+- **MovieCard**: Exibe informações de um filme.
+- **Notification**: Sistema de notificações.
+
+### Páginas
+
+- **Home**: Página inicial com filmes populares.
+- **Login**: Tela de autenticação.
+- **Cadastro**: Tela de registro de novos usuários.
+- **MinhaLista**: Lista de filmes salvos pelo usuário.
+- **Recomendacao**: Página de recomendações de filmes.
+- **MovieDetails**: Detalhes de um filme específico.
+
+## Funcionalidades do Site
+
+No CineList, os usuários podem:
+
+- **Explorar Filmes Populares**: Descubra os filmes mais populares do momento.
+- **Pesquisar Filmes**: Encontre filmes específicos pelo nome.
+- **Visualizar Detalhes de Filmes**: Veja informações detalhadas, como sinopse, elenco e avaliações.
+- **Salvar Filmes**: Adicione filmes à sua lista pessoal de favoritos.
+- **Gerenciar Lista de Filmes**: Marque filmes como assistidos ou remova-os da lista.
+- **Receber Recomendações**: Obtenha sugestões de filmes com base em suas preferências.
+- **Autenticação de Usuário**: Crie uma conta ou faça login para acessar recursos personalizados.
+
+## Contribuição
+
+Contribuições são bem-vindas! Para contribuir:
+
+1. Faça um fork do repositório.
+2. Crie uma branch para sua feature/bugfix:
+   ```bash
+   git checkout -b minha-feature
+   ```
+3. Faça commit das suas alterações:
+   ```bash
+   git commit -m "Minha nova feature"
+   ```
+4. Envie para o repositório remoto:
+   ```bash
+   git push origin minha-feature
+   ```
+5. Abra um Pull Request.
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
