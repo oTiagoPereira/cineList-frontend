@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../layout/mainLayout";
 import Button from "../components/Button/Button";
 import Input from "../components/Input/Input";
@@ -9,11 +9,12 @@ import { useQuery } from "@tanstack/react-query";
 import getGenres from "../services/getGenres";
 import getTopRated from "../services/getTopRated";
 import searchMovies from "../services/searchMovies";
+import useNotifications from "../hooks/useNotifications";
+import NotificationContainer from "../components/Notification/NotificationContainer";
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchValue, setSearchValue] = useState(""); // valor do input
-  // 1. Substituir useState e useEffect pelo hook useQuery
+  const [searchValue, setSearchValue] = useState("");
   const {
     data: moviesData,
     isLoading,
@@ -41,7 +42,7 @@ function Home() {
     queryKey: ["genres"],
     queryFn: getGenres,
     staleTime: 1000 * 60 * 60 * 24, // Cache de 24 horas, pois não muda
-    retry: false, // Não tente novamente se falhar, para não poluir o console
+    retry: false,
   });
 
   // Função auxiliar para criar um mapa de busca de gêneros (ID -> Nome)
@@ -70,7 +71,8 @@ function Home() {
     staleTime: 1000 * 60 * 2,
   });
 
-  const handleSearch = () => {
+  const handleSearch = (e) => {
+    e.preventDefault();
     setSearchTerm(searchValue.trim());
   };
 
@@ -79,6 +81,27 @@ function Home() {
 
   // 3. Garantir que temos um array para mapear
   const topRatedMovies = topRatedMoviesData?.results || [];
+
+  // Notificações para erros das queries
+  const { notifications, removeNotification, showError } = useNotifications();
+
+  useEffect(() => {
+    if (isError && error) {
+      showError(error.message || 'Erro ao carregar filmes populares');
+    }
+  }, [isError, error, showError]);
+
+  useEffect(() => {
+    if (isErrorTopRated && errorTopRated) {
+      showError(errorTopRated.message || 'Erro ao carregar filmes mais avaliados');
+    }
+  }, [isErrorTopRated, errorTopRated, showError]);
+
+  useEffect(() => {
+    if (isErrorSearch && errorSearch) {
+      showError(errorSearch.message || 'Erro na pesquisa de filmes');
+    }
+  }, [isErrorSearch, errorSearch, showError]);
 
   return (
     <MainLayout>
@@ -94,6 +117,8 @@ function Home() {
               placeholder="Pesquisar filmes"
               value={searchValue}
               onChange={e => setSearchValue(e.target.value)}
+              showClearButton={!!searchValue}
+              onClear={() => setSearchValue("")}
             />
             <span className="flex items-center md:w-1/5">
               <Button label="Buscar" variant="primary" onClick={handleSearch} type="button" />
@@ -143,7 +168,7 @@ function Home() {
               <p className="text-lg text-gray-300">Carregando...</p>
             </div>
           ) : isError ? (
-            <p className="text-center mt-10 text-red-500">Ocorreu um erro: {error?.message}</p>
+            <div className="h-10" />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 ">
               {popularMovies.map((movie) => (
@@ -169,7 +194,7 @@ function Home() {
               <p className="text-lg text-gray-300">Carregando...</p>
             </div>
           ) : isErrorTopRated ? (
-            <p className="text-center mt-10 text-red-500">Ocorreu um erro: {errorTopRated?.message}</p>
+            <div className="h-10" />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 ">
               {topRatedMovies.map((movie) => (
@@ -186,6 +211,12 @@ function Home() {
           )}
         </div>
       </div>
+
+      {/* Container global de notificações da Home */}
+      <NotificationContainer
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
     </MainLayout>
   );
 }

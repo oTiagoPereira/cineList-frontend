@@ -4,10 +4,12 @@ import LoadingSpinnerButton from "../../LoadingSpinnerButton/LoadingSpinnerButto
 const Button = ({ label, onClick, variant, type = "button", disabled = false }) => {
     const [loading, setLoading] = useState(false)
 
-    const handleClick = async () => {
+    const handleClick = async (e) => {
+        if (!onClick) return;
+
         setLoading(true);
         try {
-            await onClick();
+            await onClick(e);
         } catch (error) {
             console.error('Erro ao executar a ação', error);
         } finally {
@@ -17,9 +19,9 @@ const Button = ({ label, onClick, variant, type = "button", disabled = false }) 
     return (
         <button
             type={type}
-            onClick={handleClick}
+            onClick={type !== "submit" ? handleClick : undefined}
             disabled={disabled}
-            className={`${styleBase[variant]}`}
+            className={`${styleBase[variant]} ${disabled ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
         >
             {loading ? (
                 <LoadingSpinnerButton />)
@@ -31,10 +33,10 @@ const Button = ({ label, onClick, variant, type = "button", disabled = false }) 
 }
 
 const styleBase = {
-    primary: "w-full bg-primary hover:bg-primary-hover text-text-button font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline cursor-pointer transition",
-    secondary: "w-full bg-transparent text-text hover:bg-primary hover:text-text-button font-bold py-2 px-4 border border-primary rounded-lg focus:outline-none focus:shadow-outline cursor-pointer transition",
-    delete: "w-full bg-transparent text-text hover:bg-danger hover:text-text font-bold py-2 px-4 border border-danger rounded-lg focus:outline-none focus:shadow-outline cursor-pointer transition",
-    sucess: "w-full bg-sucess hover:bg-sucess-hover text-text-button font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline cursor-pointer transition",
+    primary: "w-full bg-primary hover:bg-primary-hover text-text-button font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition",
+    secondary: "w-full bg-transparent text-text hover:bg-primary hover:text-text-button font-bold py-2 px-4 border border-primary rounded-lg focus:outline-none focus:shadow-outline transition",
+    delete: "w-full bg-transparent text-text hover:bg-danger hover:text-text font-bold py-2 px-4 border border-danger rounded-lg focus:outline-none focus:shadow-outline transition",
+    sucess: "w-full bg-sucess hover:bg-sucess-hover text-text-button font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition",
 }
 
 

@@ -8,16 +8,14 @@ const MovieCard = ({
   poster_path,
   vote = 0,
   genres = [], // Alterado de 'genre' para 'genres' e inicializado como array vazio
+  isClickable = true, // Adiciona a prop `isClickable` com valor padrão `true`
 }) => {
+  console.log(`MovieCard - isClickable: ${isClickable}, id: ${id}`);
   // Pega o primeiro gênero da lista ou define um texto padrão
   const displayGenre = genres && genres.length > 0 ? genres[0] : "Gênero indisponível";
 
-  return (
-    // 3. Envolva todo o card com o componente Link
-    <Link
-      to={`/filme/${id}`}
-      className="w-full max-w-55 md:max-w-59 bg-background-secondary rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105 hover:shadow-xl"
-    >
+  const cardContent = (
+    <>
       <img
         src={poster_path ? `https://image.tmdb.org/t/p/w500/${poster_path}` : "https://placehold.co/400x600/222222/9ca3af?text=Poster+Indispon%C3%ADvel"}
         alt={title}
@@ -33,7 +31,22 @@ const MovieCard = ({
           {vote.toFixed(1)}/10
         </p>
       </div>
+    </>
+  );
+
+  return isClickable ? (
+    <Link
+      to={`/filme/${id}`}
+      className="w-full max-w-55 md:max-w-59 bg-background-secondary rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105 hover:shadow-xl"
+    >
+      {cardContent}
     </Link>
+  ) : (
+    <div
+      className="w-full max-w-55 md:max-w-59 bg-background-secondary rounded-lg shadow-md overflow-hidden"
+    >
+      {cardContent}
+    </div>
   );
 };
 

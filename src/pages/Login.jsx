@@ -2,37 +2,53 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
-import axios from "axios";
-
-const api = import.meta.env.VITE_API_BACKEND;
+import authService from "../services/authService";
+import NotificationContainer from "../components/Notification/NotificationContainer";
+import useNotifications from "../hooks/useNotifications";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const {
+    notifications,
+    removeNotification,
+    showError
+  } = useNotifications();
 
-  const handleSubmit = async () => {
-    setError(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    try {
-      const response = await axios.post(`${api}/auth/login`, { email, password });
-      localStorage.setItem("token", response.data.token);
+    const result = await authService.login(email, password);
+
+    if (result.success) {
+      authService.saveUserData(result.data.token, result.data.user);
       navigate("/");
-    } catch (error) {
-      setError("Email ou senha inválidos", error);
+    } else {
+      showError(result.message);
     }
   };
 
-  const handleSubmitGoogle =  () => {
-    setError(null);
+  const handleLoginClick = async () => {
+
+    const result = await authService.login(email, password);
+
+    if (result.success) {
+      authService.saveUserData(result.data.token, result.data.user);
+      navigate("/");
+    } else {
+      showError(result.message);
+    }
+  };
+
+  const handleSubmitGoogle = () => {
     try {
-      window.location.href = `${api}/auth/google`;
+      window.location.href = authService.getGoogleAuthUrl();
     } catch(error) {
       console.error("Erro ao fazer login com Google", error);
-      setError("Erro ao fazer login com Google")
+      showError("Erro ao fazer login com Google");
     }
-  }
+  };
 
   return (
     <section
@@ -82,9 +98,10 @@ function Login() {
                 type="password"
                 placeholder="Senha"
                 onChange={(e) => setPassword(e.target.value)}
+                showToggle={true}
               />
             </div>
-            <Button label="Entrar" onClick={handleSubmit} variant="primary" />
+            <Button label="Entrar" onClick={handleLoginClick} variant="primary" />
 
             <div className="flex items-center my-6">
               <hr className="flex-grow border-t border-border" />
@@ -99,11 +116,6 @@ function Login() {
               type="button"
             />
           </form>
-          {error && (
-            <div className="bg-red-100 p-4 rounded-lg shadow-lg w-full max-w-lg mt-6">
-              <p className="text-red-600 text-center">{error}</p>
-            </div>
-          )}
           <p className="mt-6 text-center text-text">
             Não tem uma conta?{" "}
             <Link
@@ -116,6 +128,11 @@ function Login() {
           </p>
         </div>
       </div>
+      <NotificationContainer
+        notifications={notifications}
+        onRemove={removeNotification}
+        position="top-center"
+      />
     </section>
   );
 }

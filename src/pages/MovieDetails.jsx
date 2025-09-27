@@ -10,6 +10,7 @@ import getGenres from "../services/getGenres";
 import Button from "../components/Button/Button";
 import { FaStar } from "react-icons/fa";
 import formatRuntime from "../utils/formatRuntime";
+import authService from "../services/authService";
 import {
   removeMovie,
   saveMovie,
@@ -25,7 +26,7 @@ function MovieDetails() {
     favorite: false,
     watched: false,
   });
-  const token = localStorage.getItem("token");
+  const token = authService.getToken();
   const api = import.meta.env.VITE_API_BACKEND;
 
   // Buscar status do filme ao montar o componente
@@ -149,9 +150,9 @@ function MovieDetails() {
                 : "https://placehold.co/400x600/222222/9ca3af?text=Poster+Indispon%C3%ADvel'"
             }
             alt={movie.title}
-            className="my-4 "
+            className="my-4"
           />
-          <div className="flex-1 text-center md:text-left">
+          <div className="flex text-center items-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
               {movie.title}
             </h2>
@@ -228,6 +229,7 @@ function MovieDetails() {
                   title={movie.title}
                   poster_path={movie.poster_path}
                   vote={movie.vote_average}
+                  isClickable={false}
                 />
               );
             })}

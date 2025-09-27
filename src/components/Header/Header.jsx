@@ -1,11 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
 import Button from "../Button/Button";
+import authService from "../../services/authService";
 
 const Header = () => {
   const location = useLocation();
   const pathname = location.pathname;
 
-  const user = localStorage.getItem("user");
+  const userData = authService.getUserData();
+  const userName = userData?.name || "Usuário";
 
   const getLinkClass = (path) => {
     return pathname === path
@@ -21,14 +23,11 @@ const Header = () => {
         </h1>
         <span className="flex items-center space-x-4">
           <Link to={"/perfil"} className="hover:text-text-secondary">
-            {user}
+            {userName}
           </Link>
           <Button
             label="Sair"
-            onClick={() => {
-              localStorage.removeItem("token");
-              window.location.href = "/login";
-            }}
+            onClick={authService.logout}
             variant="secondary"
             type="button"
           />

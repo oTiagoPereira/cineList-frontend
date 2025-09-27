@@ -1,10 +1,9 @@
 import { Navigate } from 'react-router-dom';
+import authService from '../services/authService';
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  // TODO Alterar para http only cookie depois junto com o backend
-
-  if (!token) {
+  const isAuthenticated = authService.isAuthenticated();
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 

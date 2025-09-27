@@ -1,45 +1,64 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
-
-const api = import.meta.env.VITE_API_BACKEND;
+import authService from "../services/authService";
+import useNotifications from "../hooks/useNotifications";
+import NotificationContainer from "../components/Notification/NotificationContainer";
 
 function Cadastro() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [ConfirmPassword, SetConfirmPassword] = useState("");
-  const [error, setError] = useState(null);
+  const {
+    notifications,
+    removeNotification,
+    showError,
+    showWarning,
+    showSuccess,
+    clearNotifications
+  } = useNotifications();
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
-    setError(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    clearNotifications();
 
-    try {
-      if(password !== ConfirmPassword) {
-        setError("As senhas devem ser iguais");
-        return;
-      }
-      await axios.post(`${api}/auth/register`, { name, email, password });
-      alert(`Usuário ${name} cadastrado com sucesso!`)
-      navigate("/login");
-    } catch (error) {
-      console.log(error);
-      setError("Erro ao cadastrar usuário", error);
+    if(!name || !email || !password || !ConfirmPassword) {
+      showError("Todos os campos devem ser preenchidos");
+      return;
+    }
+
+    if(password !== ConfirmPassword) {
+      showError("As senhas devem ser iguais");
+      return;
+    }
+
+    if(password.length < 6) {
+      showWarning("A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+
+    const result = await authService.register(name, email, password);
+
+    if (result.success) {
+      showSuccess("Cadastro realizado com sucesso!");
+      setTimeout(() => navigate("/login"), 800);
+    } else {
+      showError(result.message || "Erro ao cadastrar. Tente novamente.");
     }
   };
 
-  const handleSubmitGoogle =  () => {
-    setError(null);
+  const handleSubmitGoogle = () => {
+    clearNotifications();
     try {
-      window.location.href = `${api}/auth/google`;
+      window.location.href = authService.getGoogleAuthUrl();
     } catch(error) {
       console.error("Erro ao fazer cadastro com Google", error);
-      setError("Erro ao fazer cadastro com Google")
+      showError("Erro ao fazer cadastro com Google");
     }
-  }
+  };
 
   return (
     <section
@@ -56,7 +75,7 @@ function Cadastro() {
           <h2 className="text-2xl font-bold mb-6 text-center text-text-secondary">
             Crie sua Conta
           </h2>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="mb-4">
               <label
                 htmlFor="nome-cadastro"
@@ -68,7 +87,6 @@ function Cadastro() {
                 type="text"
                 id="nome-cadastro"
                 placeholder="Nome Completo"
-                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -84,7 +102,6 @@ function Cadastro() {
                 type="email"
                 id="email-cadastro"
                 placeholder="Email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -100,9 +117,9 @@ function Cadastro() {
                 type="password"
                 id="senha-cadastro"
                 placeholder="Senha"
-                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                showToggle={true}
               />
             </div>
             <div className="mb-6">
@@ -116,9 +133,9 @@ function Cadastro() {
                 type="password"
                 id="confirmar-senha-cadastro"
                 placeholder="Confirme a Senha"
-                required
                 value={ConfirmPassword}
                 onChange={(e) => SetConfirmPassword(e.target.value)}
+                showToggle={true}
               />
             </div>
             <Button label="Cadastrar" type="submit" variant="primary" />
@@ -135,11 +152,6 @@ function Cadastro() {
               type="button"
             />
           </form>
-          {error && (
-            <div className="bg-red-100 p-4 rounded-lg shadow-lg w-full max-w-lg mt-6">
-              <p className="text-red-700 text-center">{error}</p>
-            </div>
-          )}
           <p className="mt-6 text-center text-text">
             Já tem uma conta?{" "}
             <Link
@@ -152,6 +164,10 @@ function Cadastro() {
           </p>
         </div>
       </div>
+      <NotificationContainer
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
     </section>
   );
 }

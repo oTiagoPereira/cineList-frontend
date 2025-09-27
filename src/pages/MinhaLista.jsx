@@ -3,13 +3,14 @@ import MainLayout from "../layout/mainLayout";
 import { getSavedMoviesDetails, removeMovie, toggleWatched } from "../services/userMoviesService";
 import SavedMovieCard from "../components/SavedMovieCard/SavedMovieCard";
 import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
+import authService from "../services/authService";
 
 function MinhaLista() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("Todos os filmes");
   const [orderFilter, setOrderFilter] = useState("Data de adição");
-  const token = localStorage.getItem("token");
+  const token = authService.getToken();
 
   // Buscar lista de favoritos ao montar
   useEffect(() => {
