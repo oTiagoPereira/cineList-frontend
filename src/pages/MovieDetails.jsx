@@ -152,7 +152,7 @@ function MovieDetails() {
             alt={movie.title}
             className="my-4"
           />
-          <div className="flex text-center items-center">
+          <div className="flex text-center flex-col items-center md:items-start">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
               {movie.title}
             </h2>
