@@ -7,13 +7,14 @@ const AuthSuccess = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setTimeout(() => {
-      if (authService.isAuthenticated()) {
-        navigate('/', { replace: true });
+    (async () => {
+      const auth = await authService.isAuthenticated();
+      if (auth.loggedIn) {
+        navigate("/", { replace: true });
       } else {
-        navigate('/login?error=auth_failed', { replace: true });
+        navigate("/login?error=auth_failed", { replace: true });
       }
-    }, 1000);
+    })();
   }, [navigate]);
 
   return (

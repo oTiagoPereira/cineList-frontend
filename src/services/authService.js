@@ -47,57 +47,39 @@ const authService = {
         email,
         password
       });
-      return {
-        success: true,
-        data: response.data
-      };
+      return { success: true, data: response.data };
     } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Erro ao fazer login',
-        error: error.response?.data
-      };
+      return { success: false, message: error.response?.data?.message || 'Erro ao fazer login' };
     }
   },
 
   // Registro de novo usuário
   register: async (name, email, password) => {
     try {
-      const response = await axiosInstance.post('/auth/register', {
-        name,
-        email,
-        password
-      });
-      return {
-        success: true,
-        data: response.data
-      };
+      const response = await axiosInstance.post('/auth/register', { name, email, password });
+      return { success: true, data: response.data };
     } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Erro ao fazer cadastro',
-        error: error.response?.data
-      };
+      return { success: false, message: error.response?.data?.message || 'Erro ao fazer cadastro' };
     }
   },
 
   // URL para Google OAuth
-  getGoogleAuthUrl: () => {
-    return `${api}/auth/google`;
-  },
+  getGoogleAuthUrl: () => `${import.meta.env.VITE_API_BACKEND}/auth/google`,
 
-  // Logout
-  logout: () => {
-    CookieManager.remove('auth_token');
-    CookieManager.remove('user_data');
-    CookieManager.remove('user_id');
+  // Logout no servidor (vai limpar cookie httpOnly no back)
+  logout: async () => {
+    await axiosInstance.post('/auth/logout');
     window.location.href = '/login';
   },
 
-  // Verificar se usuário está logado
-  isAuthenticated: () => {
-    const token = CookieManager.get('auth_token');
-    return !!token;
+  // Verificar se usuário está logado (consulta o back)
+  isAuthenticated: async () => {
+    try {
+      const res = await axiosInstance.get('/auth/me');
+      return { loggedIn: true, user: res.data.user };
+    } catch (err) {
+      return { loggedIn: false };
+    }
   },
 
   // Obter token dos cookies
