@@ -9,7 +9,7 @@ class CookieManager {
     const defaults = {
       path: '/',
       secure: import.meta.env.PROD,
-      sameSite: 'Strict',
+      sameSite: 'none',
       httpOnly: false,
       maxAge: 24 * 60 * 60 
     };

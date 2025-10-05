@@ -6,33 +6,33 @@ const useAuth = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const updateAuthState = useCallback(() => {
-    const authenticated = authService.isAuthenticated();
-    const userData = authService.getUserData();
-
-    setIsAuthenticated(authenticated);
-    setUser(userData);
+  const fetchStatus = useCallback(async () => {
+    setLoading(true);
+    const result = await authService.isAuthenticated();
+    if (result.loggedIn) {
+      setIsAuthenticated(true);
+      setUser(result.user);
+    } else {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    updateAuthState();
-  }, [updateAuthState]);
+    fetchStatus();
+  }, [fetchStatus]);
 
   const login = async (email, password) => {
     const result = await authService.login(email, password);
-
     if (result.success) {
-      authService.saveUserData(result.data.token, result.data.user);
-      updateAuthState();
+      await fetchStatus();
     }
-
     return result;
   };
 
   const register = async (name, email, password) => {
-    const result = await authService.register(name, email, password);
-    return result;
+    return await authService.register(name, email, password);
   };
 
   const logout = useCallback(() => {
@@ -41,9 +41,7 @@ const useAuth = () => {
     setUser(null);
   }, []);
 
-  const getToken = useCallback(() => {
-    return authService.getToken();
-  }, []);
+  const getToken = useCallback(() => null, []); // token não disponível
 
   const hasPermission = useCallback((permission) => {
     if (!user || !user.permissions) return false;
@@ -60,7 +58,7 @@ const useAuth = () => {
     logout,
     getToken,
     hasPermission,
-    updateAuthState,
+    updateAuthState: fetchStatus,
 
     userId: user?.id,
     userEmail: user?.email,

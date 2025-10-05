@@ -1,14 +1,12 @@
-import axios from "axios";
-const API = import.meta.env.VITE_API_BACKEND;
+import { api } from './api';
 
 async function getMoviesPopulares () {
-  const api = `${API}/movies/populares`;
   try {
-    const response = await axios.get(api);
-    const data = await response.data;
+    const { data } = await api.get('/movies/populares');
     return data;
   } catch (error) {
-    console.error(error);
+    console.error('Erro getMoviesPopulares:', error.response?.status, error.message);
+    throw error;
   }
 };
 

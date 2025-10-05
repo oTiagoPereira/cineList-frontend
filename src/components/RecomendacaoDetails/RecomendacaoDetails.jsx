@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import authService from "../services/authService";
-import { getMovieStatus, removeMovie, saveMovie, toggleWatched } from "../services/userMoviesService";
-import Button from "../components/Button/Button";
-import MovieCard from "../components/MovieCard/MovieCard";
-import formatRuntime from "../utils/formatRuntime";
+import authService from "../../services/authService";
+import { getMovieStatus, removeMovie, saveMovie, toggleWatched } from "../../services/userMoviesService";
+import Button from "../Button/Button";
+import MovieCard from "../MovieCard/MovieCard";
+import formatRuntime from "../../utils/formatRuntime";
 import { FaStar } from "react-icons/fa";
 
 const RecomendacaoDetails = ({
@@ -16,11 +16,11 @@ const RecomendacaoDetails = ({
   const token = authService.getToken();
 
   useEffect(() => {
-    if (!chosenMovie || !chosenMovie.id || !token) return;
-
+    if (!chosenMovie || !(chosenMovie.movieTmdbId || chosenMovie.id) || !token) return;
+    const targetId = chosenMovie.movieTmdbId || chosenMovie.id;
     const fetchStatus = async () => {
       try {
-        const res = await getMovieStatus(chosenMovie.id);
+        const res = await getMovieStatus(targetId);
         if (res.status === 200) {
           setStatus(res.data);
         }
@@ -29,37 +29,38 @@ const RecomendacaoDetails = ({
         setStatus({ saved: false });
       }
     };
-
     fetchStatus();
   }, [chosenMovie, token]);
 
 
   const handleSave = async () => {
-      try {
-        if (!status.saved) {
-          await saveMovie(chosenMovie.movieTmdbId);
-        } else {
-          await removeMovie(chosenMovie.movieTmdbId);
-        }
-        const res = await getMovieStatus(chosenMovie.movieTmdbId);
-        if (res.status === 200) setStatus(res.data);
-      } catch (error) {
-        console.error("Erro ao salvar filme:", error);
+    try {
+      const targetId = chosenMovie.movieTmdbId || chosenMovie.id;
+      if (!status.saved) {
+        await saveMovie(targetId);
+      } else {
+        await removeMovie(targetId);
       }
-    };
+      const res = await getMovieStatus(targetId);
+      if (res.status === 200) setStatus(res.data);
+    } catch (error) {
+      console.error("Erro ao salvar filme:", error);
+    }
+  };
 
   const handleWatched = async () => {
-      try {
-        if (!chosenMovie) return;
-        await toggleWatched(chosenMovie.movieTmdbId);
-        const res = await getMovieStatus(chosenMovie.movieTmdbId);
-        if (res.status === 200) {
-          setStatus(res.data);
-        }
-      } catch (error) {
-        console.error("Erro ao marcar como assistido:", error);
+    try {
+      const targetId = chosenMovie.movieTmdbId || chosenMovie.id;
+      if (!targetId) return;
+      await toggleWatched(targetId);
+      const res = await getMovieStatus(targetId);
+      if (res.status === 200) {
+        setStatus(res.data);
       }
-    };
+    } catch (error) {
+      console.error("Erro ao marcar como assistido:", error);
+    }
+  };
 
   useEffect(() => {
     if (!chosenMovie) {
@@ -84,7 +85,7 @@ const RecomendacaoDetails = ({
   };
 
   const filteredRecommendations = recommendations.filter(
-    (movie) => movie.id !== chosenMovie?.movieTmdbId
+    (movie) => movie.id !== (chosenMovie?.movieTmdbId || chosenMovie?.id)
   );
 
   return (

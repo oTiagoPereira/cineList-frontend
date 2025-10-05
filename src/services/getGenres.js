@@ -1,15 +1,12 @@
-import axios from "axios";
-const API = import.meta.env.VITE_API_BACKEND;
-
-const API_URL = `${API}/movies/genres`;
+import { api } from './api';
 
 const getGenres = async () => {
   try {
-    const response = await axios.get(API_URL);
-    return response.data;
+    const { data } = await api.get('/movies/genres');
+    return data;
   } catch (error) {
-    console.error("Erro ao buscar a lista de gêneros:", error);
-    throw new Error("Não foi possível carregar os gêneros.");
+    console.error('Erro getGenres:', error.response?.status, error.message);
+    throw new Error('Não foi possível carregar os gêneros.');
   }
 };
 

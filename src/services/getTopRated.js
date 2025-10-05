@@ -1,15 +1,12 @@
-import axios from "axios";
-
-const API = import.meta.env.VITE_API_BACKEND;
+import { api } from './api';
 
 async function getTopRated () {
-  const api = `${API}/movies/top-rated`;
   try {
-    const response = await axios.get(api);
-    const data = await response.data;
+    const { data } = await api.get('/movies/top-rated');
     return data;
   } catch (error) {
-    console.error(error);
+    console.error('Erro getTopRated:', error.response?.status, error.message);
+    throw error;
   }
 };
 

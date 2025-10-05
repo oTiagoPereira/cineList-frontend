@@ -4,11 +4,10 @@ import MainLayout from "../layout/mainLayout";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
 import { FaUser, FaUserFriends } from "react-icons/fa";
-import { AiFillCloseCircle, AiOutlineLoading } from "react-icons/ai";
-import MovieCard from "../components/MovieCard/MovieCard";
-import RecomendacaoDetails from "../components/RecomendacaoDetails";
 import NotificationContainer from "../components/Notification/NotificationContainer";
 import useNotifications from "../hooks/useNotifications";
+import RecomendacaoDetails from "../components/RecomendacaoDetails/RecomendacaoDetails";
+import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
 
 // --- DADOS PARA OS FORMULÁRIOS ---
 const movieData = {
@@ -55,11 +54,7 @@ export default function Recomendacao() {
   const [recommendations, setRecommendations] = useState([]);
   const [chosenMovie, setChosenMovie] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-const {
-    notifications,
-    removeNotification,
-    showError
-  } = useNotifications();
+  const { notifications, removeNotification, showError } = useNotifications();
   const [view, setView] = useState("form");
 
   // Lida com a mudança de preferências para qualquer usuário e campo (toggle)
@@ -113,28 +108,19 @@ const {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_BACKEND}/recommendation`,
-        {
-          mode,
-          preferences,
-        }
+        { mode, preferences }
       );
       const movies = response.data.movies;
-
       if (movies && movies.length > 0) {
-        // Mapear do formato TMDB para o formato usado na UI desta tela
         const mapToUi = (m) => {
           const providers = m.streaming || {};
-          const pickProviderNames = (arr) =>
-            Array.isArray(arr)
-              ? arr.map((p) => p.provider_name).filter(Boolean)
-              : [];
+          const pickProviderNames = (arr) => Array.isArray(arr) ? arr.map(p => p.provider_name).filter(Boolean) : [];
           const providerList = [
             ...pickProviderNames(providers.flatrate),
             ...pickProviderNames(providers.buy),
-            ...pickProviderNames(providers.rent),
+            ...pickProviderNames(providers.rent)
           ];
           const platform = providerList.length ? providerList.join(", ") : "—";
-
           return {
             movieTmdbId: m.id,
             title: m.title,
@@ -143,13 +129,10 @@ const {
             duration: m.runtime,
             year: m.release_date ? new Date(m.release_date).getFullYear() : "",
             synopsis: m.overview,
-            posterUrl: m.poster_path
-              ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-              : null,
-            platform,
+            posterUrl: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : null,
+            platform
           };
         };
-
         const uiMovies = movies.map(mapToUi);
         setRecommendations(uiMovies);
         setChosenMovie(uiMovies[Math.floor(Math.random() * uiMovies.length)]);
@@ -159,9 +142,7 @@ const {
       }
     } catch (e) {
       console.error("Falha ao buscar recomendações:", e);
-      showError(
-        "Não foi possível obter as recomendações. Verifique suas preferências e tente novamente."
-      );
+      showError("Não foi possível obter as recomendações. Verifique suas preferências e tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -319,12 +300,20 @@ const {
     );
   };
 
-  const LoadingSpinner = () => (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <AiOutlineLoading className="animate-spin text-primary w-10 h-10" />
-      <p className="text-lg text-gray-300">Carregando...</p>
-    </div>
-  );
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 min-h-[60vh] flex flex-col items-center justify-center gap-6">
+          <LoadingSpinner />
+        </div>
+        <NotificationContainer
+          notifications={notifications}
+          onRemove={removeNotification}
+          position="top-center"
+        />
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -383,16 +372,12 @@ const {
             </div>
 
             <div className="mt-10 text-center w-full md:w-1/5 items-center flex flex-col">
-              {isLoading ? (
-                <LoadingSpinner />
-              ) : (
-                <Button
-                  onClick={fetchRecommendations}
-                  label={"Recomendar"}
-                  type="button"
-                  variant={"primary"}
-                />
-              )}
+              <Button
+                onClick={fetchRecommendations}
+                label={"Recomendar"}
+                type="button"
+                variant={"primary"}
+              />
             </div>
           </main>
         ) : (

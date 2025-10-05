@@ -7,11 +7,9 @@ const MovieCard = ({
   title,
   poster_path,
   vote = 0,
-  genres = [], // Alterado de 'genre' para 'genres' e inicializado como array vazio
-  isClickable = true, // Adiciona a prop `isClickable` com valor padrão `true`
+  genres = [],
+  isClickable = true,
 }) => {
-  console.log(`MovieCard - isClickable: ${isClickable}, id: ${id}`);
-  // Pega o primeiro gênero da lista ou define um texto padrão
   const displayGenre = genres && genres.length > 0 ? genres[0] : "Gênero indisponível";
 
   const cardContent = (

@@ -89,7 +89,7 @@ function Login() {
                 >
                   Senha
                 </label>
-                <Link to={"/reset"} className="text-text-secondary hover:underline">
+                <Link to={"/esqueci-senha"} className="text-text-secondary hover:underline">
                   Esqueceu sua senha?
                 </Link>
               </span>

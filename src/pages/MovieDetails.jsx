@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import MainLayout from "../layout/mainLayout";
 import getMoviesDetailsById from "../services/getMoviesDetailsById";
@@ -10,43 +10,31 @@ import getGenres from "../services/getGenres";
 import Button from "../components/Button/Button";
 import { FaStar } from "react-icons/fa";
 import formatRuntime from "../utils/formatRuntime";
-import authService from "../services/authService";
-import {
-  removeMovie,
-  saveMovie,
-  toggleWatched,
-} from "../services/userMoviesService";
-import { getMovieStatus } from "../services/userMoviesService";
+import { getMovieStatus, removeMovie, saveMovie, toggleWatched } from "../services/userMoviesService";
 import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
 
 function MovieDetails() {
   const { id } = useParams();
-  const [status, setStatus] = useState({
-    saved: false,
-    favorite: false,
-    watched: false,
-  });
-  const token = authService.getToken();
-  const api = import.meta.env.VITE_API_BACKEND;
+  const [status, setStatus] = useState({ saved: false, watched: false });
+  const [actionLoading, setActionLoading] = useState(false);
 
-  // Buscar status do filme ao montar o componente
-  useEffect(() => {
-    if (!id || !token) return;
-
-    const fetchStatus = async () => {
-      try {
-        const res = await getMovieStatus(id);
-        if (res.status === 200) {
-          setStatus(res.data);
-        }
-      } catch (error) {
-        console.error("Filme não está na lista do usuário", error);
-        setStatus({ saved: false, favorite: false, watched: false });
+  const fetchStatus = useCallback(async (movieId) => {
+    if (!movieId) return;
+    try {
+      const res = await getMovieStatus(movieId);
+      if (res.status === 200) {
+        setStatus(res.data);
       }
-    };
+    } catch (error) {
+      console.error("Erro ao buscar status do filme", error);
+      setStatus({ saved: false, watched: false });
+    }
+  }, []);
 
-    fetchStatus();
-  }, [id, token, api]);
+  useEffect(() => {
+    if (!id) return;
+    fetchStatus(id);
+  }, [id, fetchStatus]);
 
   // Query para buscar a lista completa de gêneros (será cacheada globalmente)
   const { data: genresList = [] } = useQuery({
@@ -74,28 +62,32 @@ function MovieDetails() {
   });
 
   const handleSave = async () => {
+    if (!id) return;
+    setActionLoading(true);
     try {
       if (!status.saved) {
         await saveMovie(id);
       } else {
         await removeMovie(id);
       }
-      // Atualizar status
-      const res = await getMovieStatus(id);
-      if (res.status === 200) setStatus(res.data);
+      await fetchStatus(id);
     } catch (error) {
       console.error("Erro ao salvar filme:", error);
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  // Função para marcar/desmarcar como assistido
   const handleWatched = async () => {
+    if (!id) return;
+    setActionLoading(true);
     try {
       await toggleWatched(id);
-      const res = await getMovieStatus(id);
-      if (res.status === 200) setStatus(res.data);
+      await fetchStatus(id);
     } catch (error) {
       console.error("Erro ao marcar como assistido:", error);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -141,7 +133,7 @@ function MovieDetails() {
 
   return (
     <MainLayout>
-      <section className="container mx-auto my-10 px-4 items-center ">
+      <section className="container mx-auto my-10 px-4 items-center md:items-start">
         <div className="bg-background-secondary flex flex-col md:flex-row items-center border border-border rounded-md p-6 md:p-8 gap-6 md:gap-8">
           <img
             src={
@@ -152,7 +144,7 @@ function MovieDetails() {
             alt={movie.title}
             className="my-4"
           />
-          <div className="flex text-center flex-col items-center md:items-start">
+          <div className="flex text-center md:text-left flex-col items-center md:items-start">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
               {movie.title}
             </h2>
@@ -169,7 +161,7 @@ function MovieDetails() {
             <p className="text-lg text-text mb-4">
               Lançado em{" "}
               {movie.release_date
-                ? new Date(movie.release_date).toLocaleDateString("pt-BR")
+                ? new Date(movie.release_date).getFullYear()
                 : "Data desconhecida"}
             </p>
             <p className="text-text leading-relaxed mb-4">
@@ -199,6 +191,7 @@ function MovieDetails() {
                 }
                 variant={status.saved ? "secondary" : "primary"}
                 onClick={handleSave}
+                isLoading={actionLoading}
               />
               <Button
                 label={
@@ -208,6 +201,7 @@ function MovieDetails() {
                 }
                 variant={status.watched ? "sucess" : "primary"}
                 onClick={handleWatched}
+                isLoading={actionLoading}
               />
             </div>
           </div>
@@ -229,7 +223,7 @@ function MovieDetails() {
                   title={movie.title}
                   poster_path={movie.poster_path}
                   vote={movie.vote_average}
-                  isClickable={false}
+                  isClickable={true}
                 />
               );
             })}

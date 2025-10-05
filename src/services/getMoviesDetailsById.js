@@ -1,17 +1,16 @@
-import axios from "axios";
-const API = import.meta.env.VITE_API_BACKEND;
+import { api } from './api';
 
 async function getMoviesDetailsById ({id}) {
-  const api = `${API}/movies/details/${id}`;
-  const apiStreaming = `${API}/movies/streaming/${id}`;
   try {
-    const response = await axios.get(api);
-    const streaming = await axios.get(apiStreaming);
-    response.data.streaming = streaming.data;
-    const data = await response.data;
+    const [{ data }, streaming] = await Promise.all([
+      api.get(`/movies/details/${id}`),
+      api.get(`/movies/streaming/${id}`)
+    ]);
+    data.streaming = streaming.data;
     return data;
   } catch (error) {
-    console.error(error);
+    console.error('Erro getMoviesDetailsById:', error.response?.status, error.message);
+    throw error;
   }
 };
 

@@ -1,14 +1,12 @@
-import axios from "axios";
-const API = import.meta.env.VITE_API_BACKEND;
+import { api } from './api';
 
 async function getMoviesSimilar ({id}) {
-  const api = `${API}/movies/similar/${id}`;
   try {
-    const response = await axios.get(api);
-    const data = await response.data;
+    const { data } = await api.get(`/movies/similar/${id}`);
     return data;
   } catch (error) {
-    console.error(error);
+    console.error('Erro getMoviesSimilar:', error.response?.status, error.message);
+    throw error;
   }
 };
 
