@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import authService from "../../services/authService";
 import { getMovieStatus, removeMovie, saveMovie, toggleWatched } from "../../services/userMoviesService";
 import Button from "../Button/Button";
 import MovieCard from "../MovieCard/MovieCard";
@@ -13,10 +12,9 @@ const RecomendacaoDetails = ({
   handleRespin,
 }) => {
   const [status, setStatus] = useState({ saved: false });
-  const token = authService.getToken();
 
   useEffect(() => {
-    if (!chosenMovie || !(chosenMovie.movieTmdbId || chosenMovie.id) || !token) return;
+    if (!chosenMovie || !(chosenMovie.movieTmdbId || chosenMovie.id)) return;
     const targetId = chosenMovie.movieTmdbId || chosenMovie.id;
     const fetchStatus = async () => {
       try {
@@ -30,7 +28,7 @@ const RecomendacaoDetails = ({
       }
     };
     fetchStatus();
-  }, [chosenMovie, token]);
+  }, [chosenMovie]);
 
 
   const handleSave = async () => {

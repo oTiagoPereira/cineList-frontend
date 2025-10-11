@@ -8,6 +8,7 @@ import NotificationContainer from "../components/Notification/NotificationContai
 import useNotifications from "../hooks/useNotifications";
 import RecomendacaoDetails from "../components/RecomendacaoDetails/RecomendacaoDetails";
 import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
+import { AiFillCloseCircle } from "react-icons/ai";
 
 // --- DADOS PARA OS FORMULÁRIOS ---
 const movieData = {

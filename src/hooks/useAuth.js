@@ -35,31 +35,32 @@ const useAuth = () => {
     return await authService.register(name, email, password);
   };
 
-  const logout = useCallback(() => {
-    authService.logout();
+  const logout = useCallback(async () => {
+    await authService.logout();
     setIsAuthenticated(false);
     setUser(null);
   }, []);
 
-  const getToken = useCallback(() => null, []); // token não disponível
+  const updateUser = async (userData) => {
+    const result = await authService.updateUser(userData);
+    if (result.success) {
+      await fetchStatus();
+    }
+    return result;
+  };
 
-  const hasPermission = useCallback((permission) => {
-    if (!user || !user.permissions) return false;
-    return user.permissions.includes(permission);
-  }, [user]);
+  const getToken = useCallback(() => null, []);
 
   return {
     isAuthenticated,
     user,
     loading,
-
     login,
     register,
     logout,
     getToken,
-    hasPermission,
     updateAuthState: fetchStatus,
-
+    updateUser,
     userId: user?.id,
     userEmail: user?.email,
     userName: user?.name,

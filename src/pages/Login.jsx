@@ -2,14 +2,16 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
-import authService from "../services/authService";
+import useAuth from "../hooks/useAuth";
 import NotificationContainer from "../components/Notification/NotificationContainer";
 import useNotifications from "../hooks/useNotifications";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
   const {
     notifications,
     removeNotification,
@@ -18,36 +20,22 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    const result = await authService.login(email, password);
+    const result = await login(email, password);
+
+    setIsLoading(false);
 
     if (result.success) {
-      authService.saveUserData(result.data.token, result.data.user);
       navigate("/");
     } else {
-      showError(result.message);
+      showError(result.message || "Falha no login. Verifique suas credenciais.");
     }
   };
 
-  const handleLoginClick = async () => {
-
-    const result = await authService.login(email, password);
-
-    if (result.success) {
-      authService.saveUserData(result.data.token, result.data.user);
-      navigate("/");
-    } else {
-      showError(result.message);
-    }
-  };
-
-  const handleSubmitGoogle = () => {
-    try {
-      window.location.href = authService.getGoogleAuthUrl();
-    } catch(error) {
-      console.error("Erro ao fazer login com Google", error);
-      showError("Erro ao fazer login com Google");
-    }
+  const handleGoogleLogin = () => {
+    const googleAuthUrl = `${import.meta.env.VITE_API_BACKEND}/auth/google`;
+    window.location.href = googleAuthUrl;
   };
 
   return (
@@ -78,7 +66,9 @@ function Login() {
                 id="email-login"
                 type="email"
                 placeholder="Email"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div className="mb-6">
@@ -97,11 +87,13 @@ function Login() {
                 id="senha-login"
                 type="password"
                 placeholder="Senha"
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 showToggle={true}
+                disabled={isLoading}
               />
             </div>
-            <Button label="Entrar" onClick={handleLoginClick} variant="primary" />
+            <Button label="Entrar" onClick={handleSubmit} variant="primary" />
 
             <div className="flex items-center my-6">
               <hr className="flex-grow border-t border-border" />
@@ -111,9 +103,10 @@ function Login() {
 
             <Button
               label="Entrar com Google"
-              onClick={handleSubmitGoogle}
+              onClick={handleGoogleLogin}
               variant="secondary"
               type="button"
+              disabled={isLoading}
             />
           </form>
           <p className="mt-6 text-center text-text">

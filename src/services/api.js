@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-const rawBase = import.meta.env.VITE_API_BACKEND || '';
-const baseURL = rawBase.replace(/\/$/, '');
 
 export const api = axios.create({
-  baseURL,
+  baseURL: '/api',
   withCredentials: true,
   timeout: 15000
 });
@@ -15,6 +13,13 @@ api.interceptors.response.use(
     const status = error.response?.status;
     const url = error.config?.url;
     console.error('[API ERROR]', status, url, error.message);
+
+    if (status === 401) {
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+
     return Promise.reject(error);
   }
 );
