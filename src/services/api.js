@@ -3,9 +3,20 @@ import axios from 'axios';
 
 export const api = axios.create({
   baseURL: '/api',
-  withCredentials: true,
   timeout: 15000
 });
+
+// Interceptor para adicionar o token em todas as requisições
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 api.interceptors.response.use(
   (res) => res,
@@ -15,6 +26,8 @@ api.interceptors.response.use(
     console.error('[API ERROR]', status, url, error.message);
 
     if (status === 401) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

@@ -4,7 +4,8 @@ const authService = {
   login: async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password });
-      if (response.data?.user) {
+      if (response.data?.token) {
+        localStorage.setItem('auth_token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       return { success: true, data: response.data };
@@ -26,8 +27,9 @@ const authService = {
     try {
       await api.post('/auth/logout');
     } catch (error) {
-      console.error("Erro no logout do servidor, limpando localmente:", error);
+      console.error("Erro no logout do servidor:", error);
     } finally {
+      localStorage.removeItem('auth_token');
       localStorage.removeItem('user');
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
@@ -36,6 +38,12 @@ const authService = {
   },
 
   isAuthenticated: async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      localStorage.removeItem('user');
+      return { loggedIn: false };
+    }
+
     try {
       const res = await api.get('/auth/me');
       if (res.data?.user) {
@@ -44,6 +52,7 @@ const authService = {
       }
       return { loggedIn: false };
     } catch {
+      localStorage.removeItem('auth_token');
       localStorage.removeItem('user');
       return { loggedIn: false };
     }
